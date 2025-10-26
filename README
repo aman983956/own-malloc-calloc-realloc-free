@@ -50,4 +50,72 @@ macro ALIGN_UP
 The macro ALIGN_UP ensures any number (like a memory size or address) is adjusted upward to the next multiple of 8 bytes — useful for memory alignment.
 
 
+====================================================================================================================================================
+
+Q. If I allocate 20 byte memory using malloc so I will get only 20 bytes of memory or it will different in size.
+
+Ans. 
+
+1) What you request vs. what you actually get
+	When you call: void *ptr = malloc(20);
+
+   you request 20 bytes of memory from the heap. However, you do not necessarily get exactly 20 bytes of memory allocated at the system level — you just get a pointer to a usable block of at least 20 bytes.
+
+   The actual allocated size can be larger for several reasons.
+
+
+2) Why the allocated size may be larger
+   
+   Alignment requirements
+
+      a. Most systems require allocated memory to be aligned to certain byte boundaries (for performance and correctness).
+      b. Common alignments are 8 bytes (on 64-bit systems) or sometimes 16 bytes.
+      c. So, if you ask for 20 bytes, the allocator might round that up to 24 or 32 bytes internally.
+
+   
+   Metadata overhead
+
+      a. The memory allocator (like glibc’s ptmalloc) stores some bookkeeping information about each block — such as its size and links to other blocks.
+      b. This metadata is usually stored in memory just before your returned pointer.
+      c. So if you call malloc(20), the total memory consumed by the allocator could be something like:
+	   Ex : [metadata (8–16 bytes)] + [your 20-byte usable block] + [possible padding]
+
+
+   Allocator granularity / block size
+
+      a. Many allocators manage memory in fixed-size chunks or bins (e.g., 16, 32, 64 bytes...).
+      b. So if you ask for 20 bytes, the allocator may give you a 32-byte block because that’s the smallest available bucket.
+
+
+Example on a typical system :
+
+#include <malloc.h>
+#include <stdio.h>
+
+int main(void) {
+    void *p = malloc(20);
+    printf("Allocated pointer: %p\n", p);
+    printf("Usable size: %zu\n", malloc_usable_size(p)); // Linux-specific
+    free(p);
+}
+
+On a 64-bit Linux system, you might see something like: 
+
+	Usable size: 24
+	     or
+	Usable size: 32
+
+
+This shows that while you requested 20 bytes, you got a block of 24 or 32 bytes usable memory (depending on allocator internals).
+
+
+Summary :
+----------------------------------------------------------------------
+| Concept                | Description                               |
+----------------------------------------------------------------------
+| You requested          | 20 bytes                                  |
+| You’re guaranteed      | At least 20 bytes usable                  |
+| You might actually get | 24, 32, or another rounded-up size        |
+| Reason                 | Alignment + metadata + allocator strategy |
+----------------------------------------------------------------------
 
