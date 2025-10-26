@@ -1,0 +1,53 @@
+1. What is Memory Alignment?
+Memory alignment means storing data in memory at addresses that are multiples of the data’s size or alignment requirement.
+
+For example:
+A 4-byte int → should start at a multiple of 4 (like 0, 4, 8, 12…)
+An 8-byte double → should start at a multiple of 8 (like 0, 8, 16, 24…)
+
+2. Why is Alignment Necessary?
+There are two main reasons — performance and hardware design.
+
+ (a) CPU Performance
+	Modern CPUs fetch data from memory in chunks (words) — often 4 or 8 bytes at a time.
+	If a variable starts at a properly aligned address (e.g. multiple of 8 for 8-byte data), The CPU can fetch the entire value in one read.
+	If it’s misaligned (say starts at address 6), The value might span across two chunks, forcing the CPU to do two memory reads and combine them slower.
+	
+	So alignment makes memory access: Faster, Simpler, More predictable
+
+
+ (b) Hardware Restriction
+	Some CPU architectures (like ARM, SPARC, older MIPS) cannot access unaligned addresses at all.
+	If a program tries to read a 4-byte int at address 0x0003, the CPU might raise a “bus error” or “alignment fault” — and crash.
+	So, alignment isn’t just performance — it’s also safety and compatibility.
+
+3. Why specifically multiple of 8?
+	Because 8 bytes (64 bits) is the natural word size of modern 64-bit CPUs.
+
+	That means:
+		The CPU’s registers and data bus are 8 bytes wide.
+		It can read/write 8 bytes in one operation.
+
+	Hence, aligning data to 8-byte boundaries allows the CPU to:
+		Access 64-bit data in a single instruction.
+		Avoid crossing memory boundaries.
+
+	Note : Natural size of 64-bit CPU word, so alignment is based on 8.
+
+
+====================================================================================================================================================
+
+
+macro ALIGNMENT
+------------------
+macro ALIGNMENT means we want every memory address (or size) to be a multiple of 8 bytes.
+The starting address of a variable (or the size of a memory block) should be evenly divisible by 8 — like 0, 8, 16, 24, 32...
+Because CPUs access memory faster and more safely when data is stored at aligned addresses.
+
+
+macro ALIGN_UP 
+-----------------
+The macro ALIGN_UP ensures any number (like a memory size or address) is adjusted upward to the next multiple of 8 bytes — useful for memory alignment.
+
+
+
