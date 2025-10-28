@@ -168,7 +168,7 @@ void _free(void *ptr) {
     pthread_mutex_unlock(&global_malloc_lock);
 }
 
-void *realloc(void *ptr, size_t size) {
+void *_realloc(void *ptr, size_t size) {
     if (!ptr) return _malloc(size);
     if (size == 0) { _free(ptr); return NULL; }
 
